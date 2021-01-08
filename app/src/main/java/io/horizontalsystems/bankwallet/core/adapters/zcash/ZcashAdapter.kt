@@ -1,6 +1,7 @@
 package io.horizontalsystems.bankwallet.core.adapters.zcash
 
 import android.content.Context
+import android.util.Log
 import cash.z.ecc.android.sdk.Initializer
 import cash.z.ecc.android.sdk.Synchronizer
 import cash.z.ecc.android.sdk.block.CompactBlockProcessor
@@ -46,6 +47,8 @@ class ZcashAdapter(
             ?: throw UnsupportedAccountException()
         val isRestored = wallet.account.origin == AccountOrigin.Restored
         seed = Mnemonic().toSeed(accountType.words)
+
+        Log.e("AAA", "isRestored: $isRestored, birthdayHeight: ${accountType.birthdayHeight}")
         val config = Initializer.Config { config ->
             config.server(lightWalletDHost, lightWalletDPort)
             config.setBirthdayHeight(accountType.birthdayHeight?.toInt(), isRestored)
@@ -191,6 +194,8 @@ class ZcashAdapter(
     }
 
     private fun onStatus(status: Synchronizer.Status) {
+        Log.e("AAA", "onStatus: $status")
+
         state = when (status) {
             Synchronizer.Status.STOPPED -> AdapterState.NotSynced(Exception("stopped"))
             Synchronizer.Status.DISCONNECTED -> AdapterState.NotSynced(Exception("disconnected"))
@@ -200,11 +205,15 @@ class ZcashAdapter(
     }
 
     private fun onDownloadProgress(progress: Int) {
+        Log.e("AAA", "onDownloadProgress: $progress")
         downloadProgress = progress
         updateSyncingState()
     }
 
     private fun onProcessorInfo(processorInfo: CompactBlockProcessor.ProcessorInfo) {
+
+        Log.e("AAA", "onProcessorInfo: $processorInfo")
+
         scanProgress = processorInfo.scanProgress
         updateSyncingState()
 
